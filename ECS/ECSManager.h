@@ -21,13 +21,16 @@ namespace ecs
 	public:
 		void updateSystems(double delta_ms) { };
 
-		template<class... Components>
 		EntityID makeEntity() 
 		{ 
 			return 0;
 		};
 
-
+		template<typename Component, typename... Args>
+		void assignComponentToEntity(EntityID id, Args&& ... args)
+		{
+			Component new_cmp(std::forward<Args>(args) ...);
+		}
 
 		void removeEntity(EntityID id) { };
 	};

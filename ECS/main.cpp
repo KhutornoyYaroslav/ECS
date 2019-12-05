@@ -9,14 +9,18 @@
 class PositionComponent : public ecs::ECSComponent<PositionComponent>
 {
 public:
+	PositionComponent(int v1, int v2, double v3) : val1(v1), val2(v2), val3(v3) {};
+
 	int val1;
-	uint8_t val2;
+	int val2;
 	double val3;
 };
 
-class MovementComponent : public ecs::ECSComponent<MovementComponent>
+struct MovementComponent : public ecs::ECSComponent<MovementComponent>
 {
 public:
+	MovementComponent(int v) : val1(v) {};
+
 	int val1;
 };
 
@@ -35,17 +39,16 @@ public:
 	};
 };
 
-void main(void)
+int main(void)
 {
-	std::cout << "Start programm.\n";
-
 	ecs::ECSManager ecsManager;
-	//const ecs::EntityID new_id = ecsManager.makeEntity(entity_components);	
-	ecsManager.makeEntity<MovementComponent, PositionComponent>();
+	const auto newEntityId = ecsManager.makeEntity();
+	ecsManager.assignComponentToEntity<PositionComponent>(newEntityId, 10, 20, 3.3);
+	ecsManager.assignComponentToEntity<MovementComponent>(newEntityId, 123);
 
 	std::cout << "PositionComponent SIZE is " << PositionComponent::SIZE << ", ID is " << PositionComponent::ID << "\n";
 	std::cout << "MovementComponent SIZE is " << MovementComponent::SIZE << ", ID is " << MovementComponent::ID << "\n";
 
-	std::cout << "End programm.\n";
 	std::cin.get();
+	return 0;
 }
