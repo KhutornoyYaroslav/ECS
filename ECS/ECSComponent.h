@@ -45,7 +45,7 @@ namespace ecs
 	const size_t ECSComponent<Component>::SIZE(sizeof(Component));
 
 	template<typename Component>
-	const size_t ECSComponent<Component>::ID(ECSBaseComponent::registerECSComponentType());
+	const ComponentTypeID ECSComponent<Component>::ID(ECSBaseComponent::registerECSComponentType());
 }
 
 #endif  // ECS_COMPONENT_H_

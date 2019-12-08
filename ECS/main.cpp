@@ -5,6 +5,7 @@
 #include "ECSSystem.h"
 #include "ECSEntity.h"
 
+#include "ECS_HEADER_ONLY.h"
 
 class PositionComponent : public ecs::ECSComponent<PositionComponent>
 {
@@ -24,30 +25,49 @@ public:
 	int val1;
 };
 
-class MovingSystem : public ecs::ECSSystem
+class MovingSystem : public ecs::ECSSystem<MovingSystem>
 {
 public:
 	MovingSystem()
 	{
-		this->addComponentType(MovementComponent::ID);
-		this->addComponentType(PositionComponent::ID);
+		///this->addComponentType(MovementComponent::ID);
+		//this->addComponentType(PositionComponent::ID);
 	}
 
 	void update(double delta_ms) override 
 	{
-		// TODO:
 	};
 };
+
+class RenderSystem : public ecs::ECSSystem<RenderSystem>
+{
+public:
+	void update(double delta_ms) override
+	{
+	};
+};
+
 
 int main(void)
 {
 	ecs::ECSManager ecsManager;
-	const auto newEntityId = ecsManager.makeEntity();
-	ecsManager.assignComponentToEntity<PositionComponent>(newEntityId, 10, 20, 3.3);
-	ecsManager.assignComponentToEntity<MovementComponent>(newEntityId, 123);
+	//const auto newEntityId = ecsManager.makeEntity();
+	//ecsManager.assignComponentToEntity<PositionComponent>(newEntityId, 10, 20, 3.3);
+	//ecsManager.assignComponentToEntity<MovementComponent>(newEntityId, 123);
+	//std::cout << "PositionComponent SIZE is " << PositionComponent::SIZE << ", ID is " << PositionComponent::ID << "\n";
+	//std::cout << "MovementComponent SIZE is " << MovementComponent::SIZE << ", ID is " << MovementComponent::ID << "\n";
 
-	std::cout << "PositionComponent SIZE is " << PositionComponent::SIZE << ", ID is " << PositionComponent::ID << "\n";
-	std::cout << "MovementComponent SIZE is " << MovementComponent::SIZE << ", ID is " << MovementComponent::ID << "\n";
+	///ECS::World::registerSystem
+
+	ecsManager.registerSystem<MovingSystem>();
+	ecsManager.registerSystem<RenderSystem>();
+
+	ecsManager.unregisterSystem<MovingSystem>();
+
+	ecsManager.enableSystem<MovingSystem>();
+	ecsManager.updateSystems(33);
+
+	//const auto sys = ecsManager.registerSystem<MovingSystem>();
 
 	std::cin.get();
 	return 0;

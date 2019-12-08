@@ -6,6 +6,7 @@ namespace ecs
 	using EntityID = size_t;
 	using ComponentID = size_t;
 	using ComponentTypeID = size_t;
+	using SystemTypeID = size_t;
 }
 
 #endif // ECS_TYPES_H_
