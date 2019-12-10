@@ -19,17 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ECSComponent.cpp" />
-    <ClCompile Include="ECSSystem.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ECSComponent.h" />
-    <ClInclude Include="ECSManager.h" />
-    <ClInclude Include="ECSSystem.h" />
-    <ClInclude Include="ECSEntity.h" />
-    <ClInclude Include="ECSTypes.h" />
+    <ClInclude Include="Component.h" />
+    <ClInclude Include="Manager.h" />
+    <ClInclude Include="System.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="ECS_HEADER_ONLY.h" />
+    <ClInclude Include="TypeRegistrator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

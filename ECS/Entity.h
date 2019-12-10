@@ -2,20 +2,20 @@
 #define ECS_ENTITY_H_
 
 #include <map>
-#include "ECSTypes.h"
-#include "ECSComponent.h"
+#include "Types.h"
+#include "Component.h"
 
 namespace ecs
 {
-	class ECSEntity
+	class Entity
 	{
 	private:
-		EntityID m_id;
+		ObjectID m_id;
 		//std::map<ComponentTypeID, ECSComponent*> m_components;
 
 	public:
-		explicit ECSEntity(EntityID id) : m_id(id) { };
-		EntityID getID() const { return m_id; };
+		explicit Entity(ObjectID id) : m_id(id) { };
+		ObjectID getID() const { return m_id; };
 
 		/*template<class Component>
 		Component* getComponent() const
