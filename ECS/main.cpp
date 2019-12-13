@@ -3,6 +3,7 @@
 
 #include "Manager.h"
 #include "Component.h"
+#include "Entity.h"
 #include "ECS_HEADER_ONLY.h"
 
 class PositionComponent : public ecs::Component<PositionComponent>
@@ -75,8 +76,15 @@ int main(void)
 
 	///ECS::World::tick
 
-	ecsManager.registerSystem<MovingSystem>(25.0);
-	ecsManager.registerSystem<RenderSystem>();
+	//ecsManager.registerSystem<MovingSystem>(25.0);
+	//ecsManager.registerSystem<RenderSystem>();
+
+
+	//ecs::Entity entity(0);
+	//entity.assignComponent<PositionComponent>(10, 20, 3.3);
+	//entity.assignComponent<MovementComponent>(10);
+	//entity.removeComponent<PositionComponent>();
+
 
 
 	///*ecsManager.enableSystem<MovingSystem>();

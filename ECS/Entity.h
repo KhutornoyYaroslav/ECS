@@ -15,7 +15,35 @@ namespace ecs
 
 	public:
 		explicit Entity(ObjectID id) : m_id(id) { };
-		ObjectID getID() const { return m_id; };
+
+		ObjectID id() const 
+		{ 
+			return m_id; 
+		};
+
+		template<typename Component, typename... Args>
+		void assignComponent(Args&& ... args)
+		{
+			///printf("Entity[%llu]: new component[%llu] was assigned.\n", m_id, Component::ID);
+		};
+
+		template<typename Component>
+		bool hasComponent()
+		{
+
+		};
+
+		template<typename Component>
+		void removeComponent()
+		{
+			///printf("Entity[%llu]: component[%llu] was removed.\n", m_id, Component::ID);
+		};
+
+		void removeComponents()
+		{
+
+		};
+
 
 		/*template<class Component>
 		Component* getComponent() const
