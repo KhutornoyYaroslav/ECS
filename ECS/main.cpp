@@ -9,99 +9,82 @@
 class PositionComponent : public ecs::Component<PositionComponent>
 {
 public:
-	PositionComponent(int v1, int v2, double v3) : val1(v1), val2(v2), val3(v3) {};
+	PositionComponent(double x, double y, double z) : x(x), y(y), z(z) {};
 
-	int val1;
-	int val2;
-	double val3;
+	double x;
+	double y;
+	double z;
 };
 
 struct MovementComponent : public ecs::Component<MovementComponent>
 {
 public:
-	MovementComponent(int v) : val1(v) {};
+	MovementComponent(double speed) : speed(speed) {};
 
-	int val1;
+	double speed;
 };
 
 class MovingSystem : public ecs::System<MovingSystem>
 {
-private:
-	double m_speed = 0.0;
-
 public:
-
-	explicit MovingSystem(double speed) : m_speed(speed)
-	{
-	};
-
 	MovingSystem()
 	{
-		///this->addComponentType(MovementComponent::ID);
-		//this->addComponentType(PositionComponent::ID);
-	}
+		addComponentType(PositionComponent::ID);
+		addComponentType(MovementComponent::ID);
+	};
 
-	void update(double delta_ms) override 
+	void update(double delta_ms, ecs::IComponent** p_components) override
 	{
+		PositionComponent* pose = (PositionComponent*)p_components[0];
+		MovementComponent* move = (MovementComponent*)p_components[1];
+		
+		pose->x += move->speed * delta_ms;
+		pose->y += move->speed * delta_ms;
+		pose->z += move->speed * delta_ms;
 	};
 };
 
-class RenderSystem : public ecs::System<RenderSystem>
+class StopSystem : public ecs::System<StopSystem>
 {
 public:
-	void update(double delta_ms) override
+	StopSystem()
 	{
+		addComponentType(MovementComponent::ID);
+	};
+
+	void update(double delta_ms, ecs::IComponent** p_components) override
+	{
+		MovementComponent* move = (MovementComponent*)p_components[0];
+
+		if(move->speed >= 0.0)
+			move->speed -= 0.01;
 	};
 };
-
-//// TODO: 
-//class RenderSystem2 : public ecs::System<RenderSystem>
-//{
-//public:
-//	void update(double delta_ms) override
-//	{
-//	};
-//};
-
-
 
 int main(void)
 {
 	ecs::Manager ecsManager;
-	//const auto newEntityId = ecsManager.makeEntity();
-	//ecsManager.assignComponentToEntity<PositionComponent>(newEntityId, 10, 20, 3.3);
-	//ecsManager.assignComponentToEntity<MovementComponent>(newEntityId, 123);
+
 	std::cout << "PositionComponent SIZE is " << PositionComponent::SIZE << ", ID is " << PositionComponent::ID << "\n";
 	std::cout << "MovementComponent SIZE is " << MovementComponent::SIZE << ", ID is " << MovementComponent::ID << "\n";
 
-	///ECS::World::tick
+	/// New entity creation
+	const auto e_id = ecsManager.createEntity();
+	ecsManager.assignComponent<PositionComponent>(e_id, 0.0, 0.0, 0.0);
+	ecsManager.assignComponent<MovementComponent>(e_id, 1.0);
 
-	//ecsManager.registerSystem<MovingSystem>(25.0);
-	//ecsManager.registerSystem<RenderSystem>();
-
-
-	//ecs::Entity entity(0);
-	//entity.assignComponent<PositionComponent>(10, 20, 3.3);
-	//entity.assignComponent<MovementComponent>(10);
-	//entity.removeComponent<PositionComponent>();
-
-
-
-	///*ecsManager.enableSystem<MovingSystem>();
-	//ecsManager.enableSystem<RenderSystem>();
-	//ecsManager.disableSystem<MovingSystem>();
-	//ecsManager.disableSystem<RenderSystem>();
-	//
-	//ecsManager.unregisterSystem<MovingSystem>();
-	//ecsManager.unregisterSystem<RenderSystem>();*/
-
+	/// Register systems
+	ecsManager.registerSystem<MovingSystem>();
+	ecsManager.registerSystem<StopSystem>();
 	
-	//ecsManager.updateSystems(33);
+	/// Disable / unable systems
+	ecsManager.disableSystem<MovingSystem>();
+	ecsManager.enableSystem<MovingSystem>();
 
-	//std::map<bool, double*> mapp;
-	//auto find_it = mapp.find(true);
-	//find_it->
-	//const auto sys = ecsManager.registerSystem<MovingSystem>();
+	/// Unregister systems
+	ecsManager.unregisterSystem<MovingSystem>();
+	ecsManager.unregisterSystem<StopSystem>();
+	//ecsManager.updateSystems(33);
 
 	std::cin.get();
 	return 0;

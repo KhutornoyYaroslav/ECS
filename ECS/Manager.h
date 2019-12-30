@@ -1,87 +1,88 @@
 #ifndef ECS_MANAGER_H_
 #define ECS_MANAGER_H_
 
-#include <vector>
 #include <map>
+#include <list>
+#include <vector>
+#include <memory>
+#include <algorithm>
+
 #include "System.h"
 #include "Component.h"
-
-#include <memory>
+#include "Entity.h"
 
 namespace ecs
 {
 	class Manager
 	{
 	private:
-		// components
-		// entities	
-		std::map<TypeID, std::pair<std::unique_ptr<ISystem>, bool>> m_systems;
+		// components std::map<TypeID, std::vector<IComponent>> m_components;		
+		std::map<TypeID, std::pair<ISystem*, bool>> m_systems;
 
-		//std::map<ComponentTypeID, std::vector<ECSBaseComponent*>> m_components;
-		///size_t m_entity_counter = 0;
+		ObjectID m_entities_counter = 0;
+		std::vector<Entity> m_entities;
 
 	public:
+		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Systems >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		~Manager()
+		{
+			unregisterSystems();
+		}
 
 		template<typename System, typename... Args>
 		inline void registerSystem(Args&& ... args)
 		{
-			//ECSBaseSystem* p_sys = new System(std::forward<Args>(args) ...);
-
-			//auto find_it = m_systems.find(System::ID);
-			//if (find_it == m_systems.end())
-			//{
-			//	m_systems.insert(std::pair<SystemTypeID, std::pair<ECSBaseSystem*, bool>>(System::ID, std::pair<ECSBaseSystem*, bool>(p_sys, true)));
-			//}
-			//else
-			//{
-			//	if (find_it->second.first)
-			//		delete find_it->second.first;
-
-			//	find_it->second.first = p_sys;
-			//	find_it->second.second = true;
-			//}
-
-			printf("Register new system [id = %llu]. Systems size = %llu\n", System::ID, m_systems.size());
+			if (m_systems.find(System::ID) == m_systems.end())
+			{
+				m_systems.insert({ System::ID, { new System(std::forward<Args>(args) ...), true } });
+				printf("Register new system [id = %llu]. Systems size = %llu\n", System::ID, m_systems.size());
+			}
 		};
 
 		template<typename System>
 		void unregisterSystem()
 		{
-			//auto find_it = m_systems.find(System::ID);
-			//if (find_it != m_systems.end())
-			//{
-			//	printf("lol\n");
+			auto it = m_systems.find(System::ID);
+			if (it != m_systems.end())
+			{
+				if (it->second.first)
+					delete it->second.first;
 
-			//	if (find_it->second.first)
-			//		delete find_it->second.first;
+				m_systems.erase(it);
+				printf("Unregister system [id = %llu]. Systems size = %llu\n", System::ID, m_systems.size());
+			}
+		};
 
-			//	printf("lol2\n");
-			//	m_systems.erase(find_it);
+		void unregisterSystems()
+		{
+			for (auto it = m_systems.begin(); it != m_systems.end(); ++it)
+				if (it->second.first)
+					delete it->second.first;
 
-			//	printf("Unregister system [id = %llu]. Systems size = %llu\n", System::ID, m_systems.size());
-			//}
+			m_systems.clear();
+			printf("Unregister all systems. Systems size = %llu\n", m_systems.size());
 		};
 
 		template<typename System>
 		void disableSystem()
 		{
-			//auto find_it = m_systems.find(System::ID);
-			//if (find_it != m_systems.end())
-			//{
-			//	find_it->second.second = false;
-			//	printf("System::ID %llu was disabled.\n", System::ID);
-			//}
+			auto it = m_systems.find(System::ID);
+			if (it != m_systems.end())
+			{
+				it->second.second = false;
+				printf("System::ID %llu was disabled.\n", System::ID);
+			}
 		};
 
 		template<typename System>
 		void enableSystem()
 		{
-			//auto find_it = m_systems.find(System::ID);
-			//if (find_it != m_systems.end())
-			//{
-			//	find_it->second.second = true;
-			//	printf("System::ID %llu was enabled.\n", System::ID);
-			//}
+			auto it = m_systems.find(System::ID);
+			if (it != m_systems.end())
+			{
+				it->second.second = true;
+				printf("System::ID %llu was enabled.\n", System::ID);
+			}
 		};
 
 		void updateSystems(double delta_ms) 
@@ -93,20 +94,49 @@ namespace ecs
 			//}
 		};
 
+		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Entities >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 		ObjectID createEntity() 
 		{ 
-			return 0;
+			m_entities.emplace_back(std::move(Entity(m_entities_counter++)));	
+			printf("New entity %llu was created. Entites number = %llu\n", m_entities.back().id(), m_entities.size());
+			return m_entities.back().id();
 		};
 
-		//// TODO: move this method to Entity class
-		//template<typename Component, typename... Args>
-		//void assignComponentToEntity(EntityID id, Args&& ... args)
-		//{
-		//	Component new_cmp(std::forward<Args>(args) ...);
-		//}
+		void removeEntity(ObjectID id)
+		{
+			if (std::find_if(m_entities.begin(), m_entities.end(), [&](const Entity& e) { return e.id() == id; }) != m_entities.end())
+				printf("Entity %llu was removed. ", m_entities.back().id());
 
-		void removeEntity(ObjectID id) { };
+			m_entities.erase(std::remove_if(m_entities.begin(), m_entities.end(), 
+				[&](const Entity& e) { return e.id() == id; }), m_entities.end());
+
+			printf("Entites number = %llu\n", m_entities.size());
+		};
+
+		template<typename Component, typename... Args>
+		void assignComponent(ObjectID entity_id, Args&& ... args)
+		{
+			///printf("Entity[%llu]: new component[%llu] was assigned.\n", m_id, Component::ID);
+		};
+
+		template<typename Component>
+		bool hasComponent(ObjectID entity_id)
+		{
+
+		};
+
+		template<typename Component>
+		void removeComponent(ObjectID entity_id)
+		{
+			///printf("Entity[%llu]: component[%llu] was removed.\n", m_id, Component::ID);
+		};
+
+		void removeComponents(ObjectID entity_id)
+		{
+
+		};
+
 	};
 }
 

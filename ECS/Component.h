@@ -8,7 +8,7 @@ namespace ecs
 {
 	class IComponent
 	{
-
+		///virtual ~IComponent() {};
 	};
 
 	TypeID utils::TypeRegistrator<IComponent>::m_counter = 0;
